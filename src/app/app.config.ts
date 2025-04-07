@@ -13,16 +13,22 @@ import {
   withFetch,
   withInterceptorsFromDi,
   withJsonpSupport,
+  withInterceptors,
 } from '@angular/common/http';
+
+import { authInterceptor } from './interceptors/auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
-    provideHttpClient(withFetch(),
-    withInterceptorsFromDi(),
-    withJsonpSupport()),
+    provideHttpClient(
+      withFetch(),
+      withInterceptorsFromDi(),
+      withJsonpSupport(),
+      withInterceptors([authInterceptor])
+    ),
     importProvidersFrom(HttpClientModule),
   ],
 };

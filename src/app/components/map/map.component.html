@@ -1,21 +1,20 @@
 <div class="w-full max-w-4xl mx-auto p-4">
   <div #map class="h-[500px] w-full rounded-lg shadow-lg"></div>
   <div class="mt-4">
-    <h2 class="text-xl font-bold mb-2">Saved Locations</h2>
+    <h2 class="text-xl font-bold mb-2">Ubicaciones Guardadas</h2>
     <div class="space-y-2">
       <div
         *ngFor="let location of locations"
         class="p-2 bg-gray-100 rounded flex justify-between items-center"
       >
-        <span
-          >{{ location.nameUser || "Anonymous" }}: {{ location.latitude }},
-          {{ location.longitude }}</span
-        >
+        <span>
+          {{ location.destinoAsignado }}: {{ location.latitud }}, {{ location.longitud }}
+        </span>
         <button
           (click)="centerMap(location)"
           class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
         >
-          View
+          Ver
         </button>
       </div>
     </div>

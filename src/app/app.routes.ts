@@ -1,26 +1,25 @@
 // src/app/routes.ts
 import { Routes } from '@angular/router';
-import { LocationInputComponent } from './components/location-input/location-input.component';
-import { MapComponent } from './components/map/map.component';
+import { authGuard } from './guards/auth.guard';
+import { LoginComponent } from './components/auth/login/login.component';
 
 export const routes: Routes = [
   {
-    path: 'input', // URL: /input
-    component: LocationInputComponent,
-    title: 'Add Location', // Optional: Sets the page title
+    path: 'login',
+    component: LoginComponent
   },
   {
-    path: 'dashboard', // URL: /dashboard
-    component: MapComponent,
-    title: 'Location Dashboard', // Optional: Sets the page title
+    path: '',
+    redirectTo: '/dashboard',
+    pathMatch: 'full'
   },
   {
-    path: '', // Default route
-    redirectTo: '/input', // Redirects to /input when accessing the root
-    pathMatch: 'full',
+    path: 'dashboard',
+    loadChildren: () => import('./components/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES),
+    canActivate: [authGuard]
   },
   {
-    path: '**', // Wildcard route for 404
-    redirectTo: '/input', // Could also point to a 404 component if you create one
-  },
+    path: '**',
+    redirectTo: '/dashboard'
+  }
 ];

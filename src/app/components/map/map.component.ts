@@ -10,6 +10,7 @@ import { LocationService, Location } from '../../services/location.service';
 import { CommonModule } from '@angular/common';
 import { isPlatformBrowser } from '@angular/common';
 import { DOCUMENT } from '@angular/common';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-map',
@@ -19,10 +20,9 @@ import { DOCUMENT } from '@angular/common';
   styleUrl: './map.component.css',
 })
 export class MapComponent implements AfterViewInit {
-  private map: any;
+  private map!: L.Map;
   locations: Location[] = [];
-  private markers: any[] = [];
-  private L: any;
+  private markers: L.Marker[] = [];
 
   @ViewChild('map', { static: false }) mapElementRef!: ElementRef;
 
@@ -34,63 +34,69 @@ export class MapComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     if (isPlatformBrowser(this.platformId)) {
-      setTimeout(() => this.initializeLeaflet(), 0);
+      this.initializeMap();
     }
   }
 
-  private async initializeLeaflet(): Promise<void> {
-    const leafletModule = await import('leaflet');
-    this.L = leafletModule.default || leafletModule;
-    this.initializeMap();
-    this.loadLocations();
-  }
-
   private initializeMap(): void {
-    if (!this.L || !this.mapElementRef || !this.mapElementRef.nativeElement)
-      return;
-    this.map = this.L.map(this.mapElementRef.nativeElement).setView(
-      [51.505, -0.09],
-      2
+    if (!this.mapElementRef) return;
+
+    // Configurar el icono por defecto de Leaflet
+    const iconRetinaUrl = 'assets/leaflet/images/marker-icon-2x.png';
+    const iconUrl = 'assets/leaflet/images/marker-icon.png';
+    const shadowUrl = 'assets/leaflet/images/marker-shadow.png';
+    
+    // Configurar el icono por defecto
+    L.Marker.prototype.options.icon = L.icon({
+      iconRetinaUrl,
+      iconUrl,
+      shadowUrl,
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      tooltipAnchor: [16, -28],
+      shadowSize: [41, 41]
+    });
+
+    this.map = L.map(this.mapElementRef.nativeElement).setView(
+      [14.0723, -87.1921],
+      13
     );
-    this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
     }).addTo(this.map);
+
+    this.loadLocations();
   }
 
   private loadLocations(): void {
     this.locationService.getAllLocations().subscribe({
-      next: (locations) => {
-        this.locations = locations;
-        if (isPlatformBrowser(this.platformId) && this.L) this.updateMarkers();
+      next: (response) => {
+        this.locations = response.data;
+        if (isPlatformBrowser(this.platformId)) this.updateMarkers();
       },
       error: (err) => console.error('Error loading locations:', err),
     });
   }
 
   private updateMarkers(): void {
-    if (!this.L || !this.map) return;
+    // Limpiar marcadores existentes
+    this.markers.forEach(marker => marker.remove());
+    this.markers = [];
 
-    // Define custom icon
-    const customIcon = this.L.icon({
-      iconUrl: '/icono/pin.png', // Path relative to the root (public folder)
-      iconSize: [20, 20], // Adjust size as needed
-      iconAnchor: [16, 20], // Anchor point (center bottom of the icon)
-      popupAnchor: [0, -20], // Popup position relative to the icon
-    });
-
-    this.markers.forEach((marker) => this.map.removeLayer(marker));
-    this.markers = this.locations.map((location) =>
-      this.L.marker([location.latitude, location.longitude], {
-        icon: customIcon,
-      })
+    // Agregar nuevos marcadores
+    this.locations.forEach(location => {
+      const marker = L.marker([location.latitud, location.longitud])
         .addTo(this.map)
-        .bindPopup(location.nameUser || 'Anonymous')
-    );
+        .bindPopup(location.destinoAsignado);
+      this.markers.push(marker);
+    });
   }
 
   centerMap(location: Location): void {
     if (isPlatformBrowser(this.platformId) && this.map) {
-      this.map.setView([location.latitude, location.longitude], 13);
+      this.map.setView([location.latitud, location.longitud], 13);
     }
   }
 }

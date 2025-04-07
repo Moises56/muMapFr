@@ -1,0 +1,85 @@
+.location-input-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.map-container {
+  width: 100%;
+  height: 300px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+.form-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: #fff;
+}
+
+.form-group input[readonly] {
+  background-color: #f8f9fa;
+}
+
+.coordinates {
+  display: flex;
+  gap: 16px;
+  font-size: 14px;
+  color: #666;
+}
+
+.coordinates > div {
+  flex: 1;
+}
+
+.btn-save {
+  width: 100%;
+  padding: 12px;
+  background-color: #6c5ce7;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn-save:hover {
+  background-color: #5f4dd1;
+}

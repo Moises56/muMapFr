@@ -1,17 +1,37 @@
-<div class="w-full max-w-4xl mx-auto p-4">
-  <div #map class="h-[500px] w-full rounded-lg shadow-lg"></div>
-  <div class="mt-4 flex justify-center gap-4">
-    <input
-      type="text"
-      [(ngModel)]="nameUser"
-      placeholder="Your name (optional)"
-      class="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-    />
-    <button
-      (click)="saveLocation()"
-      class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-    >
-      Save Location
-    </button>
+<div class="location-input-container">
+  <div class="map-container">
+    <div #map id="map"></div>
+  </div>
+  <div class="form-container">
+    <h2>Nueva Ubicación</h2>
+    <div class="form-group">
+      <label for="destinoAsignado">Destino Asignado</label>
+      <input
+        type="text"
+        id="destinoAsignado"
+        [(ngModel)]="currentAddress"
+        readonly
+        placeholder="Selecciona una ubicación en el mapa"
+      />
+    </div>
+    <div class="form-group">
+      <label for="tiempoEnDestino">Tiempo en Destino (minutos)</label>
+      <input
+        type="number"
+        id="tiempoEnDestino"
+        [(ngModel)]="tiempoEnDestino"
+        min="1"
+        value="60"
+      />
+    </div>
+    <div class="form-group coordinates">
+      <div>
+        <label>Latitud: {{ marker?.getLatLng().lat.toFixed(6) || "" }}</label>
+      </div>
+      <div>
+        <label>Longitud: {{ marker?.getLatLng().lng.toFixed(6) || "" }}</label>
+      </div>
+    </div>
+    <button class="btn-save" (click)="saveLocation()">Guardar Ubicación</button>
   </div>
 </div>
