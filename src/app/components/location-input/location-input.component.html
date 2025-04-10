@@ -26,10 +26,10 @@
     </div>
     <div class="form-group coordinates">
       <div>
-        <label>Latitud: {{ marker?.getLatLng().lat.toFixed(6) || "" }}</label>
+        <label>Latitud: {{ marker?.getLatLng()?.lat?.toFixed(6) || '' }}</label>
       </div>
       <div>
-        <label>Longitud: {{ marker?.getLatLng().lng.toFixed(6) || "" }}</label>
+        <label>Longitud: {{ marker?.getLatLng()?.lng?.toFixed(6) || '' }}</label>
       </div>
     </div>
     <button class="btn-save" (click)="saveLocation()">Guardar Ubicación</button>

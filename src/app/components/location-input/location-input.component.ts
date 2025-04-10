@@ -71,15 +71,15 @@ export class LocationInputComponent implements AfterViewInit {
     if (!this.mapElementRef) return;
 
     // Configurar el icono por defecto de Leaflet
-    const iconRetinaUrl = 'assets/leaflet/images/marker-icon-2x.png';
-    const iconUrl = 'assets/leaflet/images/marker-icon.png';
-    const shadowUrl = 'assets/leaflet/images/marker-shadow.png';
+    const iconRetinaUrl = '/public/images/marker-icon-2x.png';
+    const iconUrl = '/public/images/marker-icon.png';
+    const shadowUrl = '/public/images/marker-shadow.png';
     
     // Configurar el icono por defecto
     L.Marker.prototype.options.icon = L.icon({
-      iconRetinaUrl,
-      iconUrl,
-      shadowUrl,
+      iconRetinaUrl: '/public/images/marker-icon-2x.png',
+      iconUrl: '/public/images/marker-icon.png',
+      shadowUrl: '/public/images/marker-shadow.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
