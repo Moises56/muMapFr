@@ -1,0 +1,28 @@
+/* src/app/pages/login/login.component.css */
+input:focus {
+    outline: none;
+  }
+  
+  button:disabled {
+    opacity: 0.6;
+  }
+  
+  input[type="password"],
+  input[type="text"] {
+    box-sizing: border-box;
+    height: 2.5rem;
+    width: 100%;
+  }
+  
+  button:hover svg {
+    stroke: #4ab2c8;
+  }
+  
+  .hidden {
+    display: none;
+  }
+  
+  .block {
+    display: block;
+  }
+  

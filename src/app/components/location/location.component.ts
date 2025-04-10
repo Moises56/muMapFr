@@ -176,12 +176,12 @@ export class LocationComponent implements OnInit, AfterViewInit {
       }
 
       const locationData = {
-        userId: user.id,
+        // userId: user.id,
         latitud: this.currentLat,
         longitud: this.currentLng,
         destinoAsignado: this.locationForm.value.destinoAsignado,
         tiempoEnDestino: this.locationForm.value.tiempoEnDestino * 60, // Convertir minutos a segundos
-        estado: 'activo'
+        // estado: 'activo'
       };
       
       this.locationService.createLocation(locationData).subscribe({

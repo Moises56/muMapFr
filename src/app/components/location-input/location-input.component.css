@@ -83,3 +83,15 @@ h2 {
 .btn-save:hover {
   background-color: #5f4dd1;
 }
+
+
+.relative {
+  position: relative;
+}
+
+.loading-spinner {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}

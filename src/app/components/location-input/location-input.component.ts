@@ -6,9 +6,13 @@ import {
   PLATFORM_ID,
   ViewChild,
 } from '@angular/core';
-import { LocationService, Location, LocationSave } from '../../services/location.service';
+import {
+  LocationService,
+  Location,
+  LocationSave,
+} from '../../services/location.service';
 import { FormsModule } from '@angular/forms';
-import { isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { DOCUMENT } from '@angular/common';
 import * as L from 'leaflet';
 import { AuthService } from '../../services/auth.service';
@@ -17,7 +21,7 @@ import { HttpClient } from '@angular/common/http';
 @Component({
   selector: 'app-location-input',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './location-input.component.html',
   styleUrl: './location-input.component.css',
 })
@@ -47,23 +51,23 @@ export class LocationInputComponent implements AfterViewInit {
   private getAddressFromCoordinates(lat: number, lng: number): void {
     this.isLoading = true;
     this.currentAddress = '';
-    
+
     const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
-    
+
     this.http.get(url).subscribe({
       next: (response: any) => {
         if (response && response.display_name) {
           this.currentAddress = response.display_name;
         } else {
-          this.currentAddress = '';
+          this.currentAddress = 'Dirección no encontrada';
         }
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error al obtener la dirección:', error);
-        this.currentAddress = '';
+        this.currentAddress = 'Error al obtener la dirección';
         this.isLoading = false;
-      }
+      },
     });
   }
 
@@ -71,20 +75,15 @@ export class LocationInputComponent implements AfterViewInit {
     if (!this.mapElementRef) return;
 
     // Configurar el icono por defecto de Leaflet
-    const iconRetinaUrl = '/public/images/marker-icon-2x.png';
-    const iconUrl = '/public/images/marker-icon.png';
-    const shadowUrl = '/public/images/marker-shadow.png';
-    
-    // Configurar el icono por defecto
     L.Marker.prototype.options.icon = L.icon({
-      iconRetinaUrl: '/public/images/marker-icon-2x.png',
-      iconUrl: '/public/images/marker-icon.png',
-      shadowUrl: '/public/images/marker-shadow.png',
+      iconRetinaUrl: '/images/marker-icon-2x.png', // Updated path based on previous fixes
+      iconUrl: '/images/marker-icon.png',
+      shadowUrl: '/images/marker-shadow.png',
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
       tooltipAnchor: [16, -28],
-      shadowSize: [41, 41]
+      shadowSize: [41, 41],
     });
 
     this.map = L.map(this.mapElementRef.nativeElement).setView(
@@ -112,7 +111,7 @@ export class LocationInputComponent implements AfterViewInit {
         (position) => {
           const { latitude, longitude } = position.coords;
           this.map.setView([latitude, longitude], 13);
-          
+
           if (this.marker) {
             this.marker.setLatLng([latitude, longitude]);
           } else {
@@ -124,7 +123,7 @@ export class LocationInputComponent implements AfterViewInit {
         },
         (error) => {
           console.error('Error getting location:', error);
-          this.currentAddress = '';
+          this.currentAddress = 'No se pudo obtener la ubicación actual';
         }
       );
     }
@@ -145,18 +144,15 @@ export class LocationInputComponent implements AfterViewInit {
 
       const latlng = this.marker.getLatLng();
       const location: LocationSave = {
-        // userId: user.id,
         latitud: latlng.lat,
         longitud: latlng.lng,
         destinoAsignado: this.currentAddress,
         tiempoEnDestino: this.tiempoEnDestino * 60,
-        // estado: 'activo'
       };
-      console.log(location);
+      console.log('Payload being sent:', location);
 
       this.locationService.createLocation(location).subscribe({
         next: () => {
-          // console.log('Ubicación guardada correctamente', location);
           alert('¡Ubicación guardada correctamente!');
           this.currentAddress = '';
           this.tiempoEnDestino = 60;
@@ -167,7 +163,9 @@ export class LocationInputComponent implements AfterViewInit {
         },
         error: (err) => {
           console.error('Error al guardar la ubicación:', err);
-          alert('Error al guardar la ubicación. Por favor, intenta nuevamente.');
+          alert(
+            'Error al guardar la ubicación. Por favor, intenta nuevamente.'
+          );
         },
       });
     }
