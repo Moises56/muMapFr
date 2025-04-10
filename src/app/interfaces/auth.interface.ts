@@ -9,8 +9,12 @@ export interface User {
     apellido: string;
     correo: string;
     nombreUsuario: string;
+    identidad: string;
+    telefono: string;
     rol: 'ADMIN' | 'MODERATOR' | 'OPERADOR';
     estado: boolean;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface LoginResponse {
@@ -23,8 +27,6 @@ export interface RegisterRequest {
     apellido: string;
     correo: string;
     nombreUsuario: string;
-    identidad: string;
-    telefono: string;
-    rol: 'ADMIN' | 'MODERATOR' | 'OPERADOR';
     contrasena: string;
+    rol: 'ADMIN' | 'MODERATOR' | 'OPERADOR';
 } 
