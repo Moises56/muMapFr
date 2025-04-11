@@ -6,6 +6,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { LocationComponent } from './components/location/location.component';
 import { LogsComponent } from './components/logs/logs.component';
 import { UsersComponent } from './components/users/users.component';
+import { LocationsComponent } from './components/locations/locations.component';
 
 export const routes: Routes = [
   { 
@@ -28,6 +29,11 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   { 
+    path: 'locations', 
+    component: LocationsComponent,
+    canActivate: [authGuard]
+  },
+  { 
     path: 'logs', 
     component: LogsComponent,
     canActivate: [authGuard]
@@ -35,6 +41,11 @@ export const routes: Routes = [
   { 
     path: 'users', 
     component: UsersComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'my-locations',
+    loadComponent: () => import('./components/my-locations/my-locations.component').then(m => m.MyLocationsComponent),
     canActivate: [authGuard]
   },
   { 

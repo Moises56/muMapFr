@@ -1,0 +1,23 @@
+  <!-- Total Locations Card -->
+  <div class="card" (click)="navigateToLocations('all')">
+    <div class="card-body">
+      <h5 class="card-title">Total Locations</h5>
+      <p class="card-text">{{ statistics.totalLocations }}</p>
+    </div>
+  </div>
+
+  <!-- Today's Locations Card -->
+  <div class="card" (click)="navigateToLocations('today')">
+    <div class="card-body">
+      <h5 class="card-title">Today's Locations</h5>
+      <p class="card-text">{{ statistics.todayLocations }}</p>
+    </div>
+  </div>
+
+  <!-- Send Location Card -->
+  <div class="card" (click)="navigateToSendLocation()">
+    <div class="card-body">
+      <h5 class="card-title">Send Location</h5>
+      <p class="card-text">Click to send your current location</p>
+    </div>
+  </div> 
