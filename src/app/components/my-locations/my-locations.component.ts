@@ -167,8 +167,11 @@ export class MyLocationsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadMyLocations(L: any): void {
     const locationsSub = this.locationService.getMyLocations().subscribe({
-      next: (locations) => {
-        console.log('Obteniendo ubicaciones del operador...', locations);
+      next: (response) => {
+        console.log('Obteniendo ubicaciones del operador...', response);
+        // Check if response has a data property (API structure)
+        const locations = response.data ? response.data : response;
+        
         if (locations && Array.isArray(locations)) {
           this.locations = locations;
           this.clearMarkers();
@@ -254,4 +257,4 @@ export class MyLocationsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
-} 
+}
