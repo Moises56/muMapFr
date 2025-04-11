@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, OnDestroy, Inject, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -18,24 +18,24 @@ import { LeafletService } from '../../services/leaflet.service';
   imports: [CommonModule, SidebarComponent, FormsModule, RouterModule],
   template: `
     <div class="min-h-screen bg-gray-100">
-      <div class="flex">
+      <div class="flex flex-col lg:flex-row">
         <!-- Sidebar -->
         <app-sidebar></app-sidebar>
 
         <!-- Main Content -->
-        <div class="flex-1">
+        <div class="flex-1 lg:ml-64 transition-all duration-300 ease-in-out">
           <!-- Top Navigation -->
-          <nav class="bg-white shadow">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav class="bg-white shadow-md sticky top-0 z-10">
+            <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
               <div class="flex justify-between h-16">
-                <div class="flex">
-                  <div class="flex-shrink-0 flex items-center">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 flex items-center ml-10 lg:ml-0">
                     <h1 class="text-xl font-bold text-gray-900">
                       {{ (currentUser$ | async)?.rol === 'OPERADOR' ? 'Mis Ubicaciones' : 'Dashboard' }}
                     </h1>
                   </div>
-                  <div class="ml-6 flex items-center space-x-4" *ngIf="(currentUser$ | async)?.rol !== 'OPERADOR'">
-                    <a [routerLink]="['/locations']" class="text-gray-600 hover:text-gray-900">
+                  <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4" *ngIf="(currentUser$ | async)?.rol !== 'OPERADOR'">
+                    <a [routerLink]="['/locations']" class="text-gray-600 hover:text-gray-900 transition-colors duration-200">
                       Ver Todas las Ubicaciones
                     </a>
                   </div>
@@ -43,7 +43,7 @@ import { LeafletService } from '../../services/leaflet.service';
                 <div class="flex items-center">
                   <div class="ml-3 relative">
                     <div class="flex items-center space-x-4">
-                      <span class="text-gray-700">
+                      <span class="text-gray-700 hidden sm:inline">
                         {{ (currentUser$ | async)?.nombre }} {{ (currentUser$ | async)?.apellido }}
                       </span>
                       <span [ngClass]="{
@@ -62,14 +62,14 @@ import { LeafletService } from '../../services/leaflet.service';
 
           <!-- Page Content -->
           <main class="py-6">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
               <!-- Estadísticas -->
-              <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6">
                 <!-- Total Usuarios -->
-                <div class="bg-white shadow rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                <div class="bg-white shadow rounded-xl p-4 sm:p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 transform hover:-translate-y-1"
                      (click)="navigateToUsers()" *ngIf="(currentUser$ | async)?.rol !== 'OPERADOR'">
                   <div class="flex items-center">
-                    <div class="flex-shrink-0">
+                    <div class="flex-shrink-0 p-3 bg-indigo-100 rounded-lg">
                       <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                       </svg>
@@ -82,10 +82,10 @@ import { LeafletService } from '../../services/leaflet.service';
                 </div>
 
                 <!-- Total Ubicaciones -->
-                <div class="bg-white shadow rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                <div class="bg-white shadow rounded-xl p-4 sm:p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 transform hover:-translate-y-1"
                      (click)="navigateToLocations()">
                   <div class="flex items-center">
-                    <div class="flex-shrink-0">
+                    <div class="flex-shrink-0 p-3 bg-blue-100 rounded-lg">
                       <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -99,10 +99,10 @@ import { LeafletService } from '../../services/leaflet.service';
                 </div>
 
                 <!-- Ubicaciones Hoy -->
-                <div class="bg-white shadow rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200"
+                <div class="bg-white shadow rounded-xl p-4 sm:p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 transform hover:-translate-y-1"
                      (click)="navigateToLocations('today')">
                   <div class="flex items-center">
-                    <div class="flex-shrink-0">
+                    <div class="flex-shrink-0 p-3 bg-green-100 rounded-lg">
                       <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
@@ -115,9 +115,10 @@ import { LeafletService } from '../../services/leaflet.service';
                 </div>
 
                 <!-- Total Logs -->
-                <div class="bg-white shadow rounded-lg p-6" *ngIf="(currentUser$ | async)?.rol !== 'OPERADOR'">
+                <div class="bg-white shadow rounded-xl p-4 sm:p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 transform hover:-translate-y-1"
+                     *ngIf="(currentUser$ | async)?.rol !== 'OPERADOR'">
                   <div class="flex items-center">
-                    <div class="flex-shrink-0">
+                    <div class="flex-shrink-0 p-3 bg-yellow-100 rounded-lg">
                       <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                       </svg>
@@ -131,25 +132,25 @@ import { LeafletService } from '../../services/leaflet.service';
               </div>
 
               <!-- Mapa y Filtros -->
-              <div class="bg-white shadow rounded-lg p-6 mb-6">
-                <div class="flex justify-between items-center mb-4">
+              <div class="bg-white shadow rounded-xl p-4 sm:p-6 mb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
                   <h2 class="text-lg font-medium text-gray-900">
                     {{ (currentUser$ | async)?.rol === 'OPERADOR' ? 'Mi Ubicación Actual' : 'Ubicaciones Registradas' }}
                   </h2>
                   
-                  <!-- Filtros de fecha -->
-                  <div class="flex items-center space-x-4" *ngIf="(currentUser$ | async)?.rol !== 'OPERADOR'">
+                  <!-- Filtros de fecha responsivos -->
+                  <div class="flex flex-wrap items-center gap-2 sm:space-x-4 w-full sm:w-auto" *ngIf="(currentUser$ | async)?.rol !== 'OPERADOR'">
                     <button
                       (click)="filterLocations('today')"
-                      class="px-3 py-1 rounded-md text-sm font-medium"
-                      [ngClass]="{'bg-blue-600 text-white': currentFilter === 'today', 'bg-gray-200 text-gray-700': currentFilter !== 'today'}"
+                      class="px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200"
+                      [ngClass]="{'bg-blue-600 text-white': currentFilter === 'today', 'bg-gray-200 text-gray-700 hover:bg-gray-300': currentFilter !== 'today'}"
                     >
                       Hoy
                     </button>
                     <button
                       (click)="filterLocations('all')"
-                      class="px-3 py-1 rounded-md text-sm font-medium"
-                      [ngClass]="{'bg-blue-600 text-white': currentFilter === 'all', 'bg-gray-200 text-gray-700': currentFilter !== 'all'}"
+                      class="px-3 py-1 rounded-md text-sm font-medium transition-colors duration-200"
+                      [ngClass]="{'bg-blue-600 text-white': currentFilter === 'all', 'bg-gray-200 text-gray-700 hover:bg-gray-300': currentFilter !== 'all'}"
                     >
                       Todas
                     </button>
@@ -164,26 +165,29 @@ import { LeafletService } from '../../services/leaflet.service';
                   </div>
                 </div>
                 
-                <div #map class="h-[600px] rounded-lg shadow" *ngIf="isBrowser"></div>
+                <div #map [style.height]="getMapHeight()" class="rounded-lg shadow-md border border-gray-200" *ngIf="isBrowser"></div>
               </div>
 
               <!-- Últimos Logs -->
-              <div class="bg-white shadow rounded-lg p-6" *ngIf="(currentUser$ | async)?.rol !== 'OPERADOR'">
+              <div class="bg-white shadow rounded-xl p-4 sm:p-6" *ngIf="(currentUser$ | async)?.rol !== 'OPERADOR'">
                 <h2 class="text-lg font-medium text-gray-900 mb-4">Últimos Registros</h2>
                 <div class="overflow-x-auto">
                   <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                       <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                        <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
+                        <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+                        <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Fecha</th>
                       </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                      <tr *ngFor="let log of recentLogs">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ log.user?.nombreUsuario }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ log.accion }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ log.createdAt | date:'medium' }}</td>
+                      <tr *ngFor="let log of recentLogs" class="hover:bg-gray-50 transition-colors duration-150">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ log.user?.nombreUsuario }}</td>
+                        <td class="px-4 sm:px-6 py-4 text-sm text-gray-500">{{ log.accion }}</td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">{{ log.createdAt | date:'medium' }}</td>
+                      </tr>
+                      <tr *ngIf="recentLogs.length === 0">
+                        <td colspan="3" class="px-4 sm:px-6 py-4 text-center text-sm text-gray-500">No hay registros disponibles</td>
                       </tr>
                     </tbody>
                   </table>
@@ -195,7 +199,23 @@ import { LeafletService } from '../../services/leaflet.service';
       </div>
     </div>
   `,
-  styles: []
+  styles: [`
+    :host {
+      display: block;
+    }
+    
+    @media (max-width: 640px) {
+      .main-content {
+        margin-left: 0;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .main-content {
+        margin-left: 16rem; /* 64px para el sidebar */
+      }
+    }
+  `]
 })
 export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private authService = inject(AuthService);
@@ -225,8 +245,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   startDate: Date | null = null;
   endDate: Date | null = null;
   private bounds: L.LatLngBounds | null = null;
+  screenWidth: number = 0;
+  
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.screenWidth = window.innerWidth;
+    if (this.map) {
+      this.map.invalidateSize();
+    }
+  }
 
   ngOnInit() {
+    if (this.isBrowser) {
+      this.screenWidth = window.innerWidth;
+    }
+    
     this.currentUser$.pipe(take(1)).subscribe(user => {
       if (user?.rol === 'OPERADOR') {
         // Solo cargar estadísticas de ubicaciones para operadores
@@ -251,14 +284,25 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  // Método para determinar la altura del mapa en función del dispositivo
+  getMapHeight(): string {
+    if (this.screenWidth < 640) {
+      return '400px'; // Altura más pequeña para móviles
+    } else if (this.screenWidth < 1024) {
+      return '500px'; // Altura media para tablets
+    } else {
+      return '600px'; // Altura completa para escritorio
+    }
+  }
+
   private initMap(L: any): void {
     if (!this.mapElementRef?.nativeElement) return;
 
     try {
-      // Configuración inicial del mapa
+      // Configuración inicial del mapa con opciones responsivas
       this.map = L.map(this.mapElementRef.nativeElement, {
         center: [14.0723, -87.1921], // Centro en Tegucigalpa
-        zoom: 13,
+        zoom: this.screenWidth < 640 ? 11 : 13, // Zoom más amplio en móviles
         zoomControl: false, // Desactivamos el control de zoom predeterminado
         scrollWheelZoom: true,
         doubleClickZoom: true
@@ -269,11 +313,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         position: 'topright'
       }).addTo(this.map);
 
-      // Añadir escala
+      // Añadir escala (más pequeña en móviles)
       L.control.scale({
         imperial: false,
         metric: true,
-        position: 'bottomright'
+        position: 'bottomright',
+        maxWidth: this.screenWidth < 640 ? 80 : 150
       }).addTo(this.map);
 
       // Añadir capa de mapa con mejor detalle
@@ -286,7 +331,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       // Manejar el redimensionamiento de la ventana
       if (this.isBrowser && typeof window !== 'undefined') {
         window.addEventListener('resize', () => {
-          this.map.invalidateSize();
+          setTimeout(() => {
+            this.map.invalidateSize();
+          }, 300);
         });
       }
 

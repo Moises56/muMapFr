@@ -1,8 +1,8 @@
-import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, OnDestroy } from '@angular/core';
+import { Component, OnInit, inject, ViewChild, ElementRef, AfterViewInit, PLATFORM_ID, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { LocationService, LocationResponse } from '../../services/location.service';
+import { LocationService } from '../../services/location.service';
 import { SidebarComponent } from '../app/sidebar.component';
 import { Observable, Subscription, take } from 'rxjs';
 import { FormsModule } from '@angular/forms';
@@ -13,25 +13,25 @@ import { FormsModule } from '@angular/forms';
   imports: [CommonModule, SidebarComponent, FormsModule, RouterModule],
   template: `
     <div class="min-h-screen bg-gray-100">
-      <div class="flex">
+      <div class="flex flex-col lg:flex-row">
         <!-- Sidebar -->
         <app-sidebar></app-sidebar>
 
         <!-- Main Content -->
-        <div class="flex-1">
+        <div class="flex-1 lg:ml-64 transition-all duration-300 ease-in-out">
           <!-- Top Navigation -->
-          <nav class="bg-white shadow">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav class="bg-white shadow-md sticky top-0 z-10">
+            <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
               <div class="flex justify-between h-16">
-                <div class="flex">
-                  <div class="flex-shrink-0 flex items-center">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0 flex items-center ml-10 lg:ml-0">
                     <h1 class="text-xl font-bold text-gray-900">Mi Historial de Ubicaciones</h1>
                   </div>
                 </div>
                 <div class="flex items-center">
                   <div class="ml-3 relative">
                     <div class="flex items-center space-x-4">
-                      <span class="text-gray-700">
+                      <span class="text-gray-700 hidden sm:inline">
                         {{ (currentUser$ | async)?.nombre }} {{ (currentUser$ | async)?.apellido }}
                       </span>
                       <span class="bg-yellow-100 text-yellow-800 px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
@@ -46,35 +46,46 @@ import { FormsModule } from '@angular/forms';
 
           <!-- Page Content -->
           <main class="py-6">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
               <!-- Mapa -->
-              <div class="bg-white shadow rounded-lg p-6 mb-6">
-                <div #map class="h-[600px] rounded-lg shadow" *ngIf="isBrowser"></div>
+              <div class="bg-white shadow rounded-xl p-4 sm:p-6 mb-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Mapa de Mis Ubicaciones</h2>
+                <div #map [style.height]="getMapHeight()" class="rounded-lg shadow-md border border-gray-200" *ngIf="isBrowser"></div>
               </div>
 
               <!-- Tabla de Ubicaciones -->
-              <div class="bg-white shadow rounded-lg p-6">
+              <div class="bg-white shadow rounded-xl p-4 sm:p-6">
                 <h2 class="text-lg font-medium text-gray-900 mb-4">Mis Ubicaciones Registradas</h2>
                 <div class="overflow-x-auto">
                   <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                       <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destino</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tiempo en Destino</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Coordenadas</th>
+                        <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destino</th>
+                        <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                        <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Tiempo en Destino</th>
+                        <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">Fecha</th>
+                        <th class="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden lg:table-cell">Coordenadas</th>
                       </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                      <tr *ngFor="let location of locations">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ location.destinoAsignado }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ location.estado }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ roundTime(location.tiempoEnDestino) }} minutos</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ location.timestamp | date:'medium' }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <tr *ngFor="let location of locations" class="hover:bg-gray-50 transition-colors duration-150">
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ location.destinoAsignado }}</td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" 
+                                [ngClass]="{'bg-green-100 text-green-800': location.estado === 'activo', 
+                                           'bg-red-100 text-red-800': location.estado === 'inactivo',
+                                           'bg-gray-100 text-gray-800': !location.estado}">
+                            {{ location.estado || 'N/A' }}
+                          </span>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden md:table-cell">{{ roundTime(location.tiempoEnDestino) }} minutos</td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">{{ location.timestamp | date:'medium' }}</td>
+                        <td class="px-4 sm:px-6 py-4 whitespace-nowrap text-sm text-gray-500 hidden lg:table-cell">
                           {{ location.latitud.toFixed(6) }}, {{ location.longitud.toFixed(6) }}
                         </td>
+                      </tr>
+                      <tr *ngIf="locations.length === 0">
+                        <td colspan="5" class="px-4 sm:px-6 py-4 text-center text-sm text-gray-500">No hay ubicaciones registradas</td>
                       </tr>
                     </tbody>
                   </table>
@@ -86,7 +97,23 @@ import { FormsModule } from '@angular/forms';
       </div>
     </div>
   `,
-  styles: []
+  styles: [`
+    :host {
+      display: block;
+    }
+    
+    @media (max-width: 640px) {
+      .main-content {
+        margin-left: 0;
+      }
+    }
+    
+    @media (min-width: 1024px) {
+      .main-content {
+        margin-left: 16rem; /* 64px para el sidebar */
+      }
+    }
+  `]
 })
 export class MyLocationsComponent implements OnInit, AfterViewInit, OnDestroy {
   private authService = inject(AuthService);
@@ -102,8 +129,21 @@ export class MyLocationsComponent implements OnInit, AfterViewInit, OnDestroy {
   private map: any = null;
   private markers: any[] = [];
   private subscriptions: Subscription[] = [];
+  screenWidth: number = 0;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event: any) {
+    this.screenWidth = window.innerWidth;
+    if (this.map) {
+      this.map.invalidateSize();
+    }
+  }
 
   ngOnInit() {
+    if (this.isBrowser) {
+      this.screenWidth = window.innerWidth;
+    }
+    
     // Verificar que el usuario sea operador
     this.currentUser$.pipe(take(1)).subscribe(user => {
       if (user?.rol !== 'OPERADOR') {
@@ -120,13 +160,24 @@ export class MyLocationsComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  // Método para determinar la altura del mapa en función del dispositivo
+  getMapHeight(): string {
+    if (this.screenWidth < 640) {
+      return '350px'; // Altura más pequeña para móviles
+    } else if (this.screenWidth < 1024) {
+      return '450px'; // Altura media para tablets
+    } else {
+      return '550px'; // Altura completa para escritorio
+    }
+  }
+
   private initMap(L: any): void {
     if (!this.mapElementRef?.nativeElement) return;
 
-    // Configuración inicial del mapa
+    // Configuración inicial del mapa con opciones responsivas
     this.map = L.map(this.mapElementRef.nativeElement, {
       center: [14.0723, -87.1921], // Centro en Tegucigalpa
-      zoom: 13,
+      zoom: this.screenWidth < 640 ? 11 : 13, // Zoom más amplio en móviles
       zoomControl: false,
       scrollWheelZoom: true,
       doubleClickZoom: true
@@ -141,7 +192,8 @@ export class MyLocationsComponent implements OnInit, AfterViewInit, OnDestroy {
     L.control.scale({
       imperial: false,
       metric: true,
-      position: 'bottomright'
+      position: 'bottomright',
+      maxWidth: this.screenWidth < 640 ? 80 : 150
     }).addTo(this.map);
 
     // Añadir capa de mapa
@@ -153,7 +205,9 @@ export class MyLocationsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Manejar el redimensionamiento de la ventana
     window.addEventListener('resize', () => {
-      this.map.invalidateSize();
+      setTimeout(() => {
+        this.map.invalidateSize();
+      }, 300);
     });
 
     // Cargar ubicaciones del operador
@@ -202,8 +256,8 @@ export class MyLocationsComponent implements OnInit, AfterViewInit, OnDestroy {
                 className: 'custom-marker-operator',
                 html: `
                   <div class="relative">
-                    <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                    <div class="bg-blue-600 rounded-full w-6 h-6 border-2 border-white flex items-center justify-center">
+                    <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-md"></div>
+                    <div class="bg-blue-600 rounded-full w-6 h-6 border-2 border-white flex items-center justify-center shadow-md">
                       <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
                       </svg>
