@@ -7,6 +7,7 @@ import { isPlatformBrowser } from '@angular/common';
 export class LeafletService {
   private L: any = null;
   private isBrowser: boolean;
+  private fullscreenLoaded = false;
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -49,6 +50,30 @@ export class LeafletService {
   }
 
   /**
+   * Carga el plugin fullscreen de Leaflet
+   * @returns Promise que resuelve cuando el plugin está cargado
+   */
+  async loadFullscreenPlugin(): Promise<void> {
+    if (!this.isBrowser || this.fullscreenLoaded) {
+      return;
+    }
+
+    try {
+      // Cargar el CSS manualmente
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet-fullscreen@1.0.2/dist/leaflet.fullscreen.css';
+      document.head.appendChild(link);
+
+      // Cargar el plugin
+      await import('leaflet-fullscreen');
+      this.fullscreenLoaded = true;
+    } catch (error) {
+      console.error('Error cargando plugin fullscreen:', error);
+    }
+  }
+
+  /**
    * Verifica si el entorno es un navegador.
    */
   isPlatformBrowser(): boolean {
@@ -76,6 +101,20 @@ export class LeafletService {
       maxZoom: 19,
       minZoom: 8,
     }).addTo(map);
+
+    // Intentar cargar el control fullscreen
+    if (options.fullscreen !== false) {
+      await this.loadFullscreenPlugin();
+      if (this.fullscreenLoaded && L.control.fullscreen) {
+        L.control.fullscreen({
+          position: 'topright',
+          title: {
+            'false': 'Ver en pantalla completa',
+            'true': 'Salir de pantalla completa'
+          }
+        }).addTo(map);
+      }
+    }
 
     return map;
   }
